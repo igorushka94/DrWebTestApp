@@ -23,7 +23,7 @@ def main() -> None:
             print(f"{ex.__class__.__name__}: ",  ex)
 
         except EOFError:
-            print("\n...")
+            print("\nКонец ввода")
             sys.exit(0)
 
         except KeyboardInterrupt:
