@@ -59,8 +59,7 @@ class CustomDB:
                 if not self._inverted_index[value]:
                     del self._inverted_index[value]
         else:
-            if key not in self._transactions[-1]:
-                self._transactions[-1][key] = None
+            self._transactions[-1][key] = None
 
     @validate_args_count(1)
     def counts(self, value) -> None:
