@@ -76,8 +76,10 @@ class CustomDB:
         if not self._transactions:
             print(self._inverted_index.get(value, set()))
         else:
-            keys_for_value_in_transaction = {k for k, v in ChainMap(*self._transactions).items() if v == value}
-            print(self._inverted_index.get(value, set()) | keys_for_value_in_transaction)
+            chained_transaction = ChainMap(*self._transactions)
+            unseted_value_in_transaction = {k for k, v in chained_transaction.items() if v is None}
+            value_in_transaction = {k for k, v in chained_transaction.items() if v == value}
+            print((self._inverted_index[value] |  value_in_transaction) - unseted_value_in_transaction)
 
     def end(self) -> None:
         sys.exit(0)
