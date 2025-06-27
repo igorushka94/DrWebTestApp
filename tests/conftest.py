@@ -1,6 +1,8 @@
-import pytest
-from src.db import CustomDB
 from collections import defaultdict
+
+import pytest
+
+from src.db import CustomDB
 
 
 @pytest.fixture

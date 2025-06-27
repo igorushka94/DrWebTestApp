@@ -1,8 +1,8 @@
-from src.db import CustomDB
+from collections import Counter, defaultdict
 
 import pytest
 
-from collections import Counter, defaultdict
+from src.db import CustomDB
 
 
 def test_initial_state(db):
@@ -13,8 +13,15 @@ def test_initial_state(db):
 
 def test_available_commands(db):
     assert db.available_commands == {
-        "SET", "GET", "UNSET", "COUNTS", "FIND", 
-        "END", "BEGIN", "ROLLBACK", "COMMIT"
+        "SET",
+        "GET",
+        "UNSET",
+        "COUNTS",
+        "FIND",
+        "END",
+        "BEGIN",
+        "ROLLBACK",
+        "COMMIT",
     }
 
 
@@ -47,7 +54,7 @@ def test_counts(db_with_data, capsys):
     db_with_data.counts("3")
     captured = capsys.readouterr()
     assert captured.out.strip() == "1"
-    
+
 
 def test_find(db_with_data, capsys):
     db_with_data.find("3")
@@ -97,23 +104,46 @@ def test_set_with_transaction(db_in_transaction):
     assert db_in_transaction._transactions[0]["C"] == "8"
 
 
-# TODO Пофиксить методы ниже в состоянии транзакции
 def test_unset_with_transaction(db_in_transaction):
-    # db_in_transaction.unset("C")
-    # assert db_in_transaction.storage["C"] == "3"
-    ...
+    db_in_transaction.unset("C")
+    db_in_transaction.unset("B")
+    assert db_in_transaction.storage["C"] == "3"
+    assert db_in_transaction.storage["B"] == "2"
+
+    assert "C" in db_in_transaction._transactions[0]
+    assert "B" in db_in_transaction._transactions[0]
+
+    assert db_in_transaction._transactions[0]["C"] is None
+    assert db_in_transaction._transactions[0]["B"] is None
+
+    assert db_in_transaction.storage["C"] == "3"
+    assert db_in_transaction.storage["B"] == "2"
+
+    db_in_transaction.commit()
+    assert "C" not in db_in_transaction.storage
+    assert "B" not in db_in_transaction.storage
+    assert "3" not in db_in_transaction._inverted_index
+    assert "2" not in db_in_transaction._inverted_index
 
 
 def test_counts_with_transaction(db_in_transaction, capsys):
-    # db_in_transaction.counts("5")
-    # captured = capsys.readouterr()
-    # assert captured.out.strip() == "1"
+    db_in_transaction.counts("5")
+    captured = capsys.readouterr()
+    assert captured.out.strip() == "1"
 
-    # db_in_transaction.set("Y", "5")
-    # captured = capsys.readouterr()
-    # assert captured.out.strip() == "2"
-    ...
+    db_in_transaction.set("Y", "5")
+    db_in_transaction.counts("5")
+    captured = capsys.readouterr()
+    assert captured.out.strip() == "2"
 
 
 def test_find_with_transaction(db_in_transaction, capsys):
-    ...
+    db_in_transaction.find("5")
+    captured = capsys.readouterr()
+    assert "C" in captured.out.strip()
+
+    db_in_transaction.set("Y", "5")
+    db_in_transaction.find("5")
+    captured = capsys.readouterr()
+    assert "Y" in captured.out.strip()
+    assert "C" in captured.out.strip()
