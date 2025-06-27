@@ -73,7 +73,7 @@ class CustomDB:
             if unseted_value_in_transaction:
                 print(len(self._inverted_index[value] ^ unseted_value_in_transaction))
             else:
-                print(len(self._inverted_index[value]) + len(value_in_transaction[value]))
+                print(len(self._inverted_index[value]) + len(value_in_transaction))
 
     @validate_args_count(1)
     def find(self, value) -> None:
