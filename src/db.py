@@ -64,12 +64,16 @@ class CustomDB:
     @validate_args_count(1)
     def counts(self, value) -> None:
         if not self._transactions:
-            count = Counter(self.storage.values())
-            print(count[value])
+            print(len(self._inverted_index[value]))
         else:
-            count_in_storage = Counter(self.storage.values())[value]
-            count_in_transaction = Counter(ChainMap(*self._transactions).values())[value]
-            print(count_in_storage + count_in_transaction)
+            chained_transaction = ChainMap(*self._transactions)
+            unseted_value_in_transaction = {k for k, v in chained_transaction.items() if v is None}
+            value_in_transaction = {k for k, v in chained_transaction.items() if v == value}
+
+            if unseted_value_in_transaction:
+                print(len(self._inverted_index[value] ^ unseted_value_in_transaction))
+            else:
+                print(len(self._inverted_index[value]) + len(value_in_transaction[value]))
 
     @validate_args_count(1)
     def find(self, value) -> None:
