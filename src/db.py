@@ -28,12 +28,12 @@ class CustomDB:
     @validate_args_count(1)
     def get(self, key) -> None:
         if not self._transactions:
-            print(self.storage.get(key))
+            print(self.storage.get(key, "NULL"))
         else:
             if key in self._transactions[-1]:
                 print(self._transactions[-1][key])
             else:
-                print(self.storage.get(key))
+                print(self.storage.get(key, "NULL"))
 
     @validate_args_count(2)
     def set(self, key, value, is_commit=False) -> None:
@@ -59,8 +59,7 @@ class CustomDB:
                 if not self._inverted_index[value]:
                     del self._inverted_index[value]
         else:
-            if key not in self._transactions[-1]:
-                self._transactions[-1][key] = None
+            self._transactions[-1][key] = None
 
     @validate_args_count(1)
     def counts(self, value) -> None:
